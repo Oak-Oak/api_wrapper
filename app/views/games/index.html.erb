@@ -1,0 +1,70 @@
+<h1>Free To Play Games</h1>
+<div class="main-container">
+  <div class="game-list-container">
+    <h2>
+      <% if @category.present? %>
+         <%= @category.split('-').map(&:capitalize).join(' ') %> (<%= @games.count %>)
+      <% else %> 
+        Free Games (<%= @games.count %>)
+      <% end %>
+      <% if params[:sort_by].present? %>
+        (Sorted by: <%= params[:sort_by] %>)
+      <% end %>
+    </h2>
+
+    <% if @games.any? %>
+      <ul class="game-list">
+        <% sorted_games = @games %>
+        <% if params[:sort_by] == "release-date" %>
+          <% sorted_games = @games.sort_by { |game| game["release_date"] } %>
+        <% elsif params[:sort_by] == "alphabetical" %>
+          <% sorted_games = @games.sort_by { |game| game["title"] } %>
+        <% end %>
+        
+        <% sorted_games.each do |game| %>
+          <li>
+            <h2><%= game["title"] %></h2>
+            <img src="<%= game["thumbnail"] %>" alt="<%= game["title"] %> Thumbnail">
+            <p><%= game["short_description"] %></p>
+            <p>Publisher: <%= game["publisher"] %></p>
+            <p>Developer: <%= game["developer"] %></p>
+            <p>Release Date: <%= game["release_date"] %></p>
+            <p>Game Profile URL: <%= game["freetogame_profile_url"] %></p>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p>No games found.</p>
+    <% end %>
+  </div>
+
+  <div class="filter-form-container">
+    <h2>Filter Games</h2>
+    <div class="filter-options">
+      <%= form_tag("/games", method: "get") do %>
+        <label for="category">Genre:</label>
+        <select name="category" id="category">
+          <% CATEGORIES.each do |category_name, category_value| %>
+            <option value="<%= category_value %>"><%= category_name %></option>
+          <% end %>
+        </select>
+
+        <button type="submit">Filter by Genre</button>
+      <% end %>
+
+      <%= form_tag("/games", method: "get") do %>
+        <label for="sort_by">Sort By:</label>
+        <select name="sort_by" id="sort_by">
+          <option value="">None</option>
+          <option value="release-date">Release Date</option>
+          <option value="alphabetical">Alphabetical</option>
+          <option value="popularity">Popularity</option>
+        </select>
+
+        <button type="submit">Sort Games</button>
+      <% end %>
+
+      <button><%= link_to "View All Games", games_path %></button>
+    </div>
+  </div>
+</div>
